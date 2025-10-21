@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Input from "../../components/Input";
+import Input from "../_components/Input";
 
 interface FormData {
   name: string;
@@ -77,16 +77,18 @@ export default function Contact() {
       <h1 className="text-2xl font-bold mb-4">お問い合わせフォーム</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4 flex items-center gap-4">
-          <label className="text-sm font-medium w-24 flex-shrink-0">
+          <label htmlFor="contact-name" className="text-sm font-medium w-24 flex-shrink-0">
             お名前
           </label>
           <div className="flex-1">
             <Input
+              id="contact-name"
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
               disabled={isSubmitting}
+              autoComplete="name"
             />
             {errors.name && (
               <p className="text-red-600 text-sm mt-1">{errors.name}</p>
@@ -94,16 +96,18 @@ export default function Contact() {
           </div>
         </div>
         <div className="mb-4 flex items-center gap-4">
-          <label className="text-sm font-medium w-24 flex-shrink-0">
+          <label htmlFor="contact-email" className="text-sm font-medium w-24 flex-shrink-0">
             メールアドレス
           </label>
           <div className="flex-1">
             <Input
+              id="contact-email"
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               disabled={isSubmitting}
+              autoComplete="email"
             />
             {errors.email && (
               <p className="text-red-600 text-sm mt-1">{errors.email}</p>
@@ -111,17 +115,19 @@ export default function Contact() {
           </div>
         </div>
         <div className="mb-4 flex items-center gap-4">
-          <label className="text-sm font-medium w-24 flex-shrink-0 ">
+          <label htmlFor="contact-message" className="text-sm font-medium w-24 flex-shrink-0 ">
             本文
           </label>
           <div className="flex-1">
             <textarea
+              id="contact-message"
               name="message"
               value={form.message}
               onChange={handleChange}
               disabled={isSubmitting}
               rows={8}
               className="w-full p-2 border border-gray-300 rounded"
+              autoComplete="off"
             />
             {errors.message && (
               <p className="text-red-600 text-sm mt-1">{errors.message}</p>

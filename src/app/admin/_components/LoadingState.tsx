@@ -1,0 +1,1 @@
+export const LoadingState = () => <div className="p-4">読み込み中...</div>;

@@ -1,17 +1,13 @@
-type ButtonProps = {
-  type?: "submit" | "button";
-  onClick?: () => void;
-  disabled?: boolean;
+import { Component, ComponentProps } from "react";
+
+type ButtonProps = ComponentProps<"button"> & {
   variant?: "primary" | "danger";
-  children: React.ReactNode;
 };
 
 export default function Button({
-  type = "button",
-  onClick,
-  disabled,
   variant = "primary",
-  children
+  className,
+  ...props
 }: ButtonProps) {
   const colorClass = variant === "danger"
     ? "bg-red-500 hover:bg-red-600"
@@ -19,12 +15,10 @@ export default function Button({
 
   return (
     <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
       className={`rounded ${colorClass} px-4 py-2 text-white font-bold disabled:opacity-50`}
+      {...props}
     >
-      {children}
+      {props.children}
     </button>
   );
 }

@@ -6,6 +6,7 @@ type FormInputProps = {
   type?: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
 };
 
 export default function FormInput({
@@ -15,7 +16,8 @@ export default function FormInput({
   onChange,
   type = "text",
   placeholder,
-  required = false
+  required = false,
+  disabled = false
 }: FormInputProps) {
   return (
     <div className="mb-6">
@@ -25,8 +27,10 @@ export default function FormInput({
         name={name}
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
         className="w-full border border-gray-300 rounded px-3 py-2"
         required={required}
+        disabled={disabled}
       />
     </div>
   )

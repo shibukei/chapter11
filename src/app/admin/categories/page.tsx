@@ -4,15 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
-
-type Category = {
-  id: number;
-  name: string;
-};
-
-type ApiResponse = {
-  categories: Category[];
-};
+import { Category, CategoriesApiResponse } from "@/types";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -22,7 +14,7 @@ export default function AdminCategoriesPage() {
     const fetcher = async () => {
       try {
         const res = await fetch("/api/admin/categories");
-        const data : ApiResponse = await res.json();
+        const data : CategoriesApiResponse = await res.json();
         setCategories(data.categories ?? []);
       } catch (e) {
         console.error(e);

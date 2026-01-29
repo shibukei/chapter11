@@ -5,15 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Post } from "../types";
 import CategoryTag from "./admin/_components/CategoryTag";
-
-type ApiPost = {
-  id: number;
-  title: string;
-  content: string;
-  thumbnailUrl: string;
-  createdAt: string;
-  postCategories: { category: { name: string } }[];
-};
+import { ApiPost } from "../types";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);

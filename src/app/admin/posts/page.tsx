@@ -5,24 +5,7 @@ import Link from "next/link";
 import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
 import CategoryTag from "../_components/CategoryTag";
-
-type ApiPost = {
-  id: number;
-  title: string;
-  createdAt: string;
-  postCategories: { category: { name: string } }[];
-};
-
-type ApiResponse = {
-  posts: ApiPost[];
-};
-
-type ViewPost = {
-  id: number;
-  title: string;
-  createdAt: string;
-  categories: string[];
-};
+import { PostsResponse, ViewPost } from "@/types";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<ViewPost[]>([]);
@@ -31,7 +14,7 @@ export default function AdminPostsPage() {
   useEffect(() => {
     const fetcher = async () => {
       const res = await fetch("/api/admin/posts");
-      const data: ApiResponse = await res.json();
+      const data: PostsResponse = await res.json();
       const list = (data.posts ?? []).map((p) => ({
         id: p.id,
         title: p.title,

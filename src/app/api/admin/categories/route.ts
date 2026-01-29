@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { CreateCategoryRequest } from "@/types";
 
 // カテゴリー一覧APIのレスポンスの型
 export type CategoriesIndexResponse = {
@@ -39,6 +40,7 @@ export type CreateCategoryResponse = {
 }
 
 export const POST = async (request: NextRequest) => {
+  const body: CreateCategoryRequest = await request.json();
   try {
     // リクエストのbodyを取得
     const body = await request.json()

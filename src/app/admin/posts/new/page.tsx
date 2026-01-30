@@ -53,9 +53,7 @@ export default function AdminPostNewPage() {
 
     try {
       const body: CreatePostRequest = {
-        title: formData.title,
-        content: formData.content,
-        thumbnailUrl: formData.thumbnailUrl,
+        ...formData,
         categories: formData.categories.map((id) => ({ id })),
       };
 

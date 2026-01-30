@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Post } from "../types";
+import CategoryTag from "./admin/_components/CategoryTag";
+import { ApiPost } from "../types";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -14,13 +16,18 @@ export default function Posts() {
     let mounted = true;
     const fetcher = async () => {
       try {
-        const res = await fetch(
-          "https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts"
-        );
+        const res = await fetch("/api/posts");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         // API の構造に応じて data.posts か data を使う
-        const list: Post[] = data.posts ?? data;
+        const list: Post[] = (data.posts ?? []).map((p: ApiPost) => ({
+          id: String(p.id),
+          title: p.title,
+          content: p.content,
+          thumbnailUrl: p.thumbnailUrl,
+          createdAt: p.createdAt,
+          categories: p.postCategories?.map((pc) => pc.category.name) ?? [],
+        }));
         if (mounted) setPosts(list);
       } catch (e) {
         if (mounted) setError(e instanceof Error ? e.message : String(e));
@@ -40,13 +47,15 @@ export default function Posts() {
   return (
     <>
       {posts.map((p) => (
-        <Link key={p.id} href={`/posts/${p.id}`} className="block">
-          <article className="border border-gray-300 p-4 mb-8 shadow-sm hover:shadow-md transition">
+        <article key={p.id} className="border border-gray-300 p-4 mb-6 shadow-sm hover:shadow-md transition max-w-700 mt-11">
+          <Link href={`/posts/${p.id}`} className="block">
             <h2 className="text-2xl font-bold mb-2">{p.title}</h2>
-            {p.thumbnailUrl && (
+            {p.thumbnailUrl && /^https?:\/\//.test(p.thumbnailUrl) && (
               <Image
                 src={p.thumbnailUrl}
                 alt={p.title}
+                width={800}
+                height={400}
                 className="w-full h-auto mb-2"
               />
             )}
@@ -56,20 +65,15 @@ export default function Posts() {
             <div className="mb-2">
               {Array.isArray(p.categories) &&
                 p.categories.map((c) => (
-                  <span
-                    key={c}
-                    className="text-xs border border-[#06c] text-[#06c] rounded px-2 py-1 mr-2"
-                  >
-                    {c}
-                  </span>
+                  <CategoryTag key={c} name={c} />
                 ))}
             </div>
             <div
               className="line-clamp-2 overflow-hidden"
               dangerouslySetInnerHTML={{ __html: p.content }}
             />
-          </article>
-        </Link>
+          </Link>
+        </article>
       ))}
     </>
   );

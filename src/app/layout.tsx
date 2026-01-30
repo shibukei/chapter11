@@ -31,10 +31,8 @@ export default function RootLayout({
       >
         <Header />
         <main>
-          <div className='container mx-auto px-4'>
-            <div className='max-w-3xl mx-auto py-8'>
+          <div className='w-full'>
               {children}
-            </div>
           </div>
         </main>
       </body>

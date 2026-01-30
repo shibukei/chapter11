@@ -14,9 +14,7 @@ export default function PostDetail() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetch(
-          `https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`
-        );
+        const res = await fetch(`/api/posts/${id}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         // API の構造に応じて data.post か data を使う
@@ -36,10 +34,15 @@ export default function PostDetail() {
   if (!post) return <div className="p-4">記事が見つかりません。</div>;
 
   return (
-    <article className="prose max-w-none">
+    <article className="max-w-700 mx-auto mt-12">
       <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
       {post.thumbnailUrl && (
-        <Image src={post.thumbnailUrl} alt={post.title} className="w-full mb-4" />
+        <Image 
+          src={post.thumbnailUrl} 
+          alt={post.title} 
+          width={800}
+          height={400}
+          className="w-full mb-4" />
       )}
       <div className="text-sm text-gray-500 mb-4">
         {post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}

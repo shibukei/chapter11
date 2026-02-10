@@ -1,12 +1,13 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/app/_libs/supabase";
 
 export type PostsIndexResponse = {
   posts: {
     id: number
     title: string
     content: string
-    thumbnailUrl: string
+    thumbnailImageKey: string
     createdAt: Date
     updatedAt: Date
     postCategories: {
@@ -18,7 +19,18 @@ export type PostsIndexResponse = {
   }[]
 }
 
-export const GET = async () => {
+export const GET = async (requests: NextRequest) => {
+  // GET関数の引数からrequestを受け取り、その中にAuthorizationヘッダーが含まれているので、それを取り出す
+  const token = requests.headers.get('Authorization') ?? ''
+
+  // supabaseに対してtokenを送る
+  const { error} = await supabase.auth.getUser(token)
+
+  // 送ったtokenに対してtokenを送る
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
+
+  // tokenが正しい場合、以降が実行される
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -72,7 +84,7 @@ export const POST = async (request: Request) => {
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey: thumbnailUrl,
       },
     })
 

@@ -7,14 +7,14 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Post {
   id             Int            @id @default(autoincrement())
   title          String
   content        String
-  thumbnailUrl   String         @map("thumbnail_url")
+  thumbnailImageKey   String         @map("thumbnail_url")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   postCategories PostCategory[]

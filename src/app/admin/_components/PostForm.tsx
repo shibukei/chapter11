@@ -1,15 +1,19 @@
+import Image from "next/image";
 import FormInput from "./FormInput";
 import Button from "./Button";
 import { Category, PostFormData } from "@/types";
+import { ChangeEvent } from "react";
 
 type PostFormProps = {
   formData: PostFormData;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
   onDelete?: () => void;
   categories: Category[];
   submitting: boolean;
   isEdit?: boolean;
+  handleImageChange?: (e: ChangeEvent<HTMLInputElement>) => Promise<void>; 
+  thumbnailImageUrl?: string | null
 };
 
 export default function PostForm({
@@ -20,6 +24,8 @@ export default function PostForm({
   categories,
   submitting,
   isEdit = false,
+  handleImageChange,
+  thumbnailImageUrl,
 }: PostFormProps) {
   return (
     <form onSubmit={onSubmit} className="max-w-2xl">
@@ -47,16 +53,23 @@ export default function PostForm({
       </div>
 
       <div className="mb-6">
-        <FormInput
-          label="サムネイル URL"
-          name="thumbnailUrl"
-          value={formData.thumbnailUrl}
-          onChange={onChange}
-          type="url"
-          placeholder="https://placehold.jp/800x400.png"
-          disabled={submitting}
-          required
-        />
+        <label
+          htmlFor="thumbnailImageKey"
+          className="block text-sm font-semibold mb-2"
+        >
+          サムネイルURL
+        </label>
+        <input type="file" id="thumbnailImageKey" onChange={handleImageChange} accept="image/*" />
+          {thumbnailImageUrl && (
+            <div className="mt-2">
+              <Image
+                src={thumbnailImageUrl}
+                alt="thumbnail"
+                width={400}
+                height={400}
+              />
+            </div>
+          )}
       </div>
 
       <div className="mb-6">

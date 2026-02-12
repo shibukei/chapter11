@@ -100,15 +100,12 @@ export const PUT = async (
     })
 
     // 記事とカテゴリーの中間DBに生成
-    // 本来複数同時生成には、createManyというメソッドがあるが、sqlliteではcreateManyが使えないので、for文で1つずつ実施
-    for (const category of categories) {
-      await prisma.postCategory.create({
-        data: {
-          postId: post.id,
-          categoryId: category.id,
-        },
-      })
-    }
+    await prisma.postCategory.createMany({
+      data: categories.map(category => ({
+        postId: post.id,
+        categoryId: category.id,
+      })),
+    })
 
     // レスポンスを返す
     return NextResponse.json({ message: 'OK' }, { status: 200 })

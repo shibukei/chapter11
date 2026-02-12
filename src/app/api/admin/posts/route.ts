@@ -89,15 +89,12 @@ export const POST = async (request: Request) => {
     })
 
     // 記事とカテゴリーの中間テーブルのレコードをDBに生成
-    // 本来副業同時生成には、createManyというメソッドがあるが、spliteではcreateManyが使えないので、for文1つずつ実施
-    for (const category of categories) {
-      await prisma.postCategory.create({
-        data: {
-          categoryId: category.id,
-          postId: data.id,
-        }
-      })
-    }
+    await prisma.postCategory.createMany({
+      data: categories.map(category => ({
+        categoryId: category.id,
+        postId: data.id,
+      }))
+    })
 
     // レスポンスを返す
     return NextResponse.json<CreatePostResponse>({

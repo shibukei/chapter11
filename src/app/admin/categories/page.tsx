@@ -5,15 +5,24 @@ import Link from "next/link";
 import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
 import { Category, CategoriesApiResponse } from "@/types";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { token } = useSupabaseSession();
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
       try {
-        const res = await fetch("/api/admin/categories");
+        const res = await fetch("/api/admin/categories", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
         const data : CategoriesApiResponse = await res.json();
         setCategories(data.categories ?? []);
       } catch (e) {
@@ -23,7 +32,7 @@ export default function AdminCategoriesPage() {
       }
     };
     fetcher();
-  }, []);
+  }, [token]);
 
   if (loading) return <LoadingState />;
 

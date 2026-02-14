@@ -73,11 +73,11 @@ export default function Contact() {
   };
 
   return (
-    <div className="max-w-[800px] mx-auto p-4">
+    <div className="max-w-200 mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">お問い合わせフォーム</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4 flex items-center gap-4">
-          <label htmlFor="contact-name" className="text-sm font-medium w-24 flex-shrink-0">
+          <label htmlFor="contact-name" className="text-sm font-medium w-24 shrink-0">
             お名前
           </label>
           <div className="flex-1">
@@ -96,7 +96,7 @@ export default function Contact() {
           </div>
         </div>
         <div className="mb-4 flex items-center gap-4">
-          <label htmlFor="contact-email" className="text-sm font-medium w-24 flex-shrink-0">
+          <label htmlFor="contact-email" className="text-sm font-medium w-24 shrink-0">
             メールアドレス
           </label>
           <div className="flex-1">
@@ -115,7 +115,7 @@ export default function Contact() {
           </div>
         </div>
         <div className="mb-4 flex items-center gap-4">
-          <label htmlFor="contact-message" className="text-sm font-medium w-24 flex-shrink-0 ">
+          <label htmlFor="contact-message" className="text-sm font-medium w-24 shrink-0 ">
             本文
           </label>
           <div className="flex-1">

@@ -1,5 +1,5 @@
 export interface Post {
-  id: string;
+  id: number;
   title: string;
   content: string;
   thumbnailUrl?: string;
@@ -16,7 +16,7 @@ export type ApiPost = {
   id: number;
   title: string;
   content: string;
-  thumbnailUrl: string;
+  thumbnailImageKey: string;
   createdAt: string;
   updatedAt: string;
   postCategories: { category: Category } [];

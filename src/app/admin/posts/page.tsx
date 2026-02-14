@@ -6,14 +6,23 @@ import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
 import CategoryTag from "../_components/CategoryTag";
 import { PostsResponse, ViewPost } from "@/types";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<ViewPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const { token } = useSupabaseSession();
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
-      const res = await fetch("/api/admin/posts");
+      const res = await fetch("/api/admin/posts", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        }
+      });
       const data: PostsResponse = await res.json();
       const list = (data.posts ?? []).map((p) => ({
         id: p.id,
@@ -25,7 +34,7 @@ export default function AdminPostsPage() {
       setLoading(false);
     };
     fetcher();
-  }, []);
+  }, [token]);
 
   if (loading) return <LoadingState />;
 

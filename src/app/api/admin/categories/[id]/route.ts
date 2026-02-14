@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/app/_libs/supabase";
 
 // カテゴリー詳細APIのレスポンスの型
 export type CategoryShowResponse = {
@@ -15,6 +16,12 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, 
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+
   const { id } = await params
 
   try {
@@ -47,6 +54,12 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+
   // paramsの中にidが入っているので、それを取り出す(paramsをawaitで解決)
   const { id } = await params
 
@@ -76,6 +89,12 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 

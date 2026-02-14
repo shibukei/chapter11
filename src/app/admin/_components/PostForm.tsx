@@ -7,7 +7,7 @@ import { ChangeEvent } from "react";
 type PostFormProps = {
   formData: PostFormData;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onDelete?: () => void;
   categories: Category[];
   submitting: boolean;

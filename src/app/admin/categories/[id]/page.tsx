@@ -5,19 +5,28 @@ import { useParams, useRouter } from "next/navigation";
 import { LoadingState } from "../../_components/LoadingState";
 import CategoryForm from "../../_components/CategoryForm";
 import { Category } from "@/types";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function AdminCategoryEditPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { token } = useSupabaseSession();
   const [category, setCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({ name: "" });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
+
     const fetcher = async () => {
       try {
-        const res = await fetch(`/api/admin/categories/${id}`);
+        const res = await fetch(`/api/admin/categories/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
         const data = await res.json();
         const c = data.category ?? data;
         setCategory(c);
@@ -29,21 +38,24 @@ export default function AdminCategoryEditPage() {
       }
     };
     fetcher();
-  }, [id]);
+  }, [id, token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: "PUT",
-        headers: { "Content-type": "application/json" },
+        headers: { 
+          "Content-type": "application/json",
+          Authorization: token || "",
+        },
         body: JSON.stringify({ name: formData.name }),
       });
 

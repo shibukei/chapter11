@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma";
+import { supabase } from "@/app/_libs/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export type Category = {
@@ -22,9 +23,15 @@ export type PostsShowResponse = {
 }
 
 export const GET = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, 
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+
   const { id } = await params
 
   try {
@@ -73,6 +80,12 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 
@@ -118,9 +131,15 @@ export const PUT = async (
 
 // DELETEという命名にすることで、DELETEリクエストの時にこの関数が呼ばれる
 export const DELETE = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+  
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 

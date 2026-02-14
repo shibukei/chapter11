@@ -24,11 +24,11 @@ export const GET = async (requests: NextRequest) => {
   const token = requests.headers.get('Authorization') ?? ''
 
   // supabaseに対してtokenを送る
-  const { error} = await supabase.auth.getUser(token)
+  const { error: authError } = await supabase.auth.getUser(token)
 
   // 送ったtokenに対してtokenを送る
-  if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
 
   // tokenが正しい場合、以降が実行される
   try {
@@ -72,6 +72,12 @@ export type CreatePostResponse = {
 
 // POSTという命名にすることで、Postリクエストの時にこの関数が呼ばれる
 export const POST = async (request: Request) => {
+  // 認可チェック
+  const token = request.headers.get('Authorization') ?? ''
+  const { error: authError } = await supabase.auth.getUser(token)
+  if (authError)
+    return NextResponse.json({ status: authError.message }, { status: 401 })
+  
   try {
     // リクエストのbodyを取得
     const body: CreatePostRequestBody = await request.json()

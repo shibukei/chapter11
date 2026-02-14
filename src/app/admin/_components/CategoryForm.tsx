@@ -4,7 +4,7 @@ import Button from "./Button";
 type CategoryFormProps = {
   formData: { name: string };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onDelete?: () => void;
   submitting: boolean;
   isEdit?: boolean;

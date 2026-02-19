@@ -4,49 +4,51 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { LoadingState } from "../../_components/LoadingState";
 import CategoryForm from "../../_components/CategoryForm";
-import { Category } from "@/types";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+
+interface CategoryFormData {
+  name: string;
+}
+
+interface CategoryResponse {
+  category: {
+    id: number;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+}
 
 export default function AdminCategoryEditPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { token } = useSupabaseSession();
-  const [category, setCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({ name: "" });
-  const [loading, setLoading] = useState(true);
+  const { register, handleSubmit, reset } = useForm<CategoryFormData>();
   const [submitting, setSubmitting] = useState(false);
 
+  const fetcher = (url: string) => 
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token!,
+      },
+      }).then((res) => res.json());
+
+  const { data, error, isLoading } = useSWR<CategoryResponse>(
+    token ? `/api/admin/categories/${id}` : null,
+    fetcher
+  );
+
+  // データ取得後にフォームに値をセット
   useEffect(() => {
-    if (!token) return;
+    if (data?.category) {
+      reset({ name: data.category.name });
+    }
+  }, [data, reset]);
 
-    const fetcher = async () => {
-      try {
-        const res = await fetch(`/api/admin/categories/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        });
-        const data = await res.json();
-        const c = data.category ?? data;
-        setCategory(c);
-        setFormData({ name: c.name });
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetcher();
-  }, [id, token]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (formData: CategoryFormData) => {
     setSubmitting(true);
 
     try {
@@ -54,7 +56,7 @@ export default function AdminCategoryEditPage() {
         method: "PUT",
         headers: { 
           "Content-type": "application/json",
-          Authorization: token || "",
+          Authorization: token!,
         },
         body: JSON.stringify({ name: formData.name }),
       });
@@ -80,6 +82,9 @@ export default function AdminCategoryEditPage() {
     try {
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: token!,
+        },
       });
 
       if (res.ok) {
@@ -96,16 +101,16 @@ export default function AdminCategoryEditPage() {
     }
   };
 
-  if (loading) return <div>読み込み中...</div>;
-  if (!category) return <LoadingState />;
+  if (isLoading) return <LoadingState />;
+  if (error) return <div>エラーが発生しました</div>;
+  if (!data?.category) return <div>カテゴリーが見つかりません</div>;
 
   return (
     <div>
       <h1 className="text-xl font-bold mb-6">カテゴリー編集</h1>
       <CategoryForm
-        formData={formData}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
+        register={register}
+        onSubmit={handleSubmit(onSubmit)}
         onDelete={handleDelete}
         submitting={submitting}
         isEdit

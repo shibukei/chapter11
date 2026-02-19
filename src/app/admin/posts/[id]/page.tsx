@@ -4,18 +4,17 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { LoadingState } from "../../_components/LoadingState";
 import PostForm from "../../_components/PostForm";
-import { Category, ApiPost, PostFormData } from "@/types";
+import { Category, ApiPost, PostFormData, CategoriesApiResponse } from "@/types";
 import { supabase } from "@/app/_libs/supabase";
 import { v4 as uuidv4 } from 'uuid'
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 import { extractImageKey } from "@/app/_libs/utils";
+import useSWR from "swr";
 
 export default function AdminPostEditPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { token } = useSupabaseSession();
-  const [post, setPost] = useState<ApiPost | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [thumbnailImageKey, setThumbnailImageKey] = useState('');
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState<PostFormData>({
@@ -24,65 +23,52 @@ export default function AdminPostEditPage() {
     thumbnailUrl: "",
     categories: [],
   });
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const fetcher = (url: string) =>
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token!,
+      },
+    }).then((res) => res.json());
+
+  // 記事データの取得
+  const { data: postData, error: postError, isLoading: postLoading } = useSWR(
+    token ? `/api/admin/posts/${id}` : null,
+    fetcher
+  );
+
+  // カテゴリー一覧の取得
+  const { data: catData, isLoading: catLoading } = useSWR<CategoriesApiResponse>(
+    token ? "/api/admin/categories" : null,
+    fetcher
+  );
+
+  const post: ApiPost | null = postData?.post ?? null;
+  const categories = catData?.categories ?? [];
+
+  // データ取得時にフォームデータをセット
   useEffect(() => {
-    if (!token) return
-
-    const fetcher = async () => {
-      try {
-        // 記事データを取得
-        const postRes = await fetch(`/api/admin/posts/${id}`, {
-          headers: {
-            'Authorization': token,
-          },
-        });
-        const postData = await postRes.json();
-        const p = postData.post ?? postData;
-        setPost(p);
-        setThumbnailImageKey(extractImageKey(p.thumbnailImageKey));
-
-        // カテゴリー一覧を取得
-        const catRes = await fetch("/api/admin/categories", {
-          headers: {
-            'Authorization': token,
-          },
-        });
-        const catData = await catRes.json();
-        setCategories(catData.categories ?? []);
-
-        // フォームデータを設定
-        setFormData({
-          title: p.title,
-          content: p.content,
-          thumbnailUrl: p.thumbnailImageKey,
-          categories: p.postCategories?.map((pc: { category: Category }) => pc.category.id) ?? [],
-        });
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetcher();
-  }, [id, token]);
+    if (!post) return;
+    setThumbnailImageKey(extractImageKey(post.thumbnailImageKey));
+    setFormData({
+      title: post.title,
+      content: post.content,
+      thumbnailUrl: post.thumbnailImageKey,
+      categories: post.postCategories?.map((pc: { category: Category }) => pc.category.id) ?? [],
+    });
+  }, [post]);
 
   // 画像URLを取得
   useEffect(() => {
     if (!thumbnailImageKey) return;
 
-    const fetcher = async () => {
-      const {
-          data: { publicUrl },
-        } = await supabase.storage
-          .from("post_thumbnail")
-          .getPublicUrl(thumbnailImageKey);
+    const { data: { publicUrl } } = supabase.storage
+      .from("post_thumbnail")
+      .getPublicUrl(thumbnailImageKey);
 
-      setThumbnailImageUrl(publicUrl);
-    };
-
-      fetcher();
+    setThumbnailImageUrl(publicUrl);
   }, [thumbnailImageKey]);
 
   const handleImageChange = async (
@@ -182,7 +168,8 @@ export default function AdminPostEditPage() {
     }
   };
 
-  if (loading) return <LoadingState />;
+  if (postLoading || catLoading) return <LoadingState />;
+  if (postError) return <div>エラーが発生しました</div>
   if (!post) return <div>記事が見つかりません</div>;
 
   return (

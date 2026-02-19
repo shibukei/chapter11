@@ -1,9 +1,12 @@
-import FormInput from "./FormInput";
 import Button from "./Button";
+import { UseFormRegister } from "react-hook-form";
+
+interface CategoryFormData {
+  name: string;
+}
 
 type CategoryFormProps = {
-  formData: { name: string };
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  register: UseFormRegister<CategoryFormData>;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onDelete?: () => void;
   submitting: boolean;
@@ -11,8 +14,7 @@ type CategoryFormProps = {
 };
 
 export default function CategoryForm({
-  formData,
-  onChange,
+  register,
   onSubmit,
   onDelete,
   submitting,
@@ -21,13 +23,13 @@ export default function CategoryForm({
   return (
     <form onSubmit={onSubmit} className="max-w-2xl">
       <div className="mb-6">
-        <FormInput
-          label="カテゴリー名"
-          name="name"
-          value={formData.name}
-          onChange={onChange}
-          disabled={submitting}
+        <label className="block text-sm font-semibold mb-2">カテゴリー名</label>
+        <input
+          type="text"
+          className="w-full border border-gray-300 rounded px-3 py-2"
           required
+          disabled={submitting}
+          {...register("name", { required: true })}
         />
       </div>
 

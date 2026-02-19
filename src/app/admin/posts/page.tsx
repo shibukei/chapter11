@@ -1,33 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
 import CategoryTag from "../_components/CategoryTag";
 import { PostsResponse, ViewPost } from "@/types";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import useSWR from "swr";
 
 export default function AdminPostsPage() {
-  const [posts, setPosts] = useState<ViewPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { token } = useSupabaseSession();
 
-  useEffect(() => {
-    const fetcher = async () => {
-      const res = await fetch("/api/admin/posts");
-      const data: PostsResponse = await res.json();
-      const list = (data.posts ?? []).map((p) => ({
-        id: p.id,
-        title: p.title,
-        createdAt: p.createdAt,
-        categories: p.postCategories?.map((pc) => pc.category.name) ?? [],
-      }));
-      setPosts(list);
-      setLoading(false);
-    };
-    fetcher();
-  }, []);
+  const fetcher = (url: string) =>
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token!,
+      },
+    }).then((res) => res.json());
 
-  if (loading) return <LoadingState />;
+    const { data, error, isLoading } = useSWR<PostsResponse>(
+      token ? "/api/admin/posts" : null,
+      fetcher
+    );
+
+  const posts: ViewPost[] = (data?.posts ?? []).map((p) => ({
+    id: p.id,
+    title: p.title,
+    createdAt: p.createdAt,
+    categories: p.postCategories?.map((pc) => pc.category.name) ?? [],
+  }));
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <div>エラーが発生しました</div>;
 
   return (
     <div>

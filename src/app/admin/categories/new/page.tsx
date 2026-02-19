@@ -3,25 +3,29 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CategoryForm from "../../_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { useForm } from "react-hook-form";
+
+interface CategoryFormData {
+  name: string;
+}
 
 export default function AdminCategoryNewPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ name: "" });
+  const { token } = useSupabaseSession();
+  const { register, handleSubmit } = useForm<CategoryFormData>();
   const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: CategoryFormData) => {
     setSubmitting(true);
     try {
       const res = await fetch("/api/admin/categories", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formData.name }),
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: token || "",
+        },
+        body: JSON.stringify({ name: data.name }),
       });
       if (res.ok) {
         alert("カテゴリーを作成しました");
@@ -41,9 +45,8 @@ export default function AdminCategoryNewPage() {
     <div>
       <h1 className="text-xl font-bold mb-6">カテゴリー作成</h1>
       <CategoryForm
-        formData={formData}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
+        register={register}
+        onSubmit={handleSubmit(onSubmit)}
         submitting={submitting}
       />
     </div>

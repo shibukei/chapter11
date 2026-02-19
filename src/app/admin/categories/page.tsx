@@ -1,31 +1,32 @@
 "use client"
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import CreateButton from "../_components/CreateButton";
 import { LoadingState } from "../_components/LoadingState";
 import { Category, CategoriesApiResponse } from "@/types";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import useSWR from "swr";
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { token } = useSupabaseSession();
 
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        const res = await fetch("/api/admin/categories");
-        const data : CategoriesApiResponse = await res.json();
-        setCategories(data.categories ?? []);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetcher();
-  }, []);
+  const fetcher = (url: string) =>
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token!,
+      },
+    }).then((res) => res.json());
 
-  if (loading) return <LoadingState />;
+  const { data, error, isLoading } = useSWR<CategoriesApiResponse>(
+    token ? "/api/admin/categories" : null,
+    fetcher
+  );
+
+  const categories = data?.categories ?? [];
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <div>エラーが発生しました</div>;
 
   return (
     <div>

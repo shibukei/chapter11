@@ -4,9 +4,8 @@ import useSWR from "swr" // データフェッチライブラリSWRをインポ�
 import { useSupabaseSession } from "./useSupabaseSession" // 認証トークンを取得するカスタムフックをインポート
 
 // ジェネリック型<T>を使い、どんなレスポンス化にも対応できるカスタムフックを定義
-// endpoint: フェッチ先のURL（string固定）
 export const useFetch = <T>(endpoint: string) => {
-  const { token } = useSupabaseSession() // Supabaseの認証トークンを取得
+  const { token } = useSupabaseSession() 
 
   // SWRに渡すフェッチ関数を定義
   const fetcher = (url: string) =>
@@ -17,11 +16,11 @@ export const useFetch = <T>(endpoint: string) => {
       },
     }).then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`) // 失敗時はエラーをスロー
-        return res.json() // 成功時はJSONとしてバースして返す
+        return res.json() // 成功時はJSONとしてパースして返す
     })
 
     return useSWR<T>(
       token && endpoint ? endpoint : null, // tokenとendpointが両方ある場合のみフェッチ
-      fetcher,
+      fetcher, 
     )
 }

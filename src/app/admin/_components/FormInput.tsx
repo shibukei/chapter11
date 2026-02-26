@@ -5,38 +5,19 @@ import { UseFormRegisterReturn } from "react-hook-form";
 type FormInputProps = {
   label: string;
   registration?: UseFormRegisterReturn; // react-hook-formのregister関数の戻り値
-  type?: string; // inputのtype属性（省略可能、デフォルトは"text"）
-  placeholder?: string; 
-  required?: boolean; // 必須入力かどうか
-  disabled?: boolean;
-  name?: string; // input要素のname属性
-  value?: string; // input要素の値
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
+} & React.ComponentProps<'input'>; // inputの全属性をまとめて受け取る
 
 export default function FormInput({
   label,
   registration, // react-hook-formのregisterを受け取る
-  type = "text",
-  placeholder,
-  required = false,
-  disabled = false,
-  name,
-  value,
-  onChange,
+  ...props // inputの属性をまとめて受け取る
 }: FormInputProps) { // propsの型をFormInputPropsをして指定
   return (
     <div className="mb-6">
       <label className="block text-sm font-semibold mb-2">{label}</label>
       <input
-        type={type} // inputのtype属性をセット（text, passsword, emailなど）
-        placeholder={placeholder}
         className="w-full border border-gray-300 rounded px-3 py-2"
-        required={required} // 必須入力かどうかをセット
-        disabled={disabled}
-        name={name}
-        value={value}
-        onChange={onChange}
+        {...props} // inputの属性をそのまま渡す
         {...registration} // react-hook-formのregisterの設定を全て展開してセット
       />
     </div>

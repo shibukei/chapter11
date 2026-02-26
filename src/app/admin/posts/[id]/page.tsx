@@ -22,7 +22,6 @@ export default function AdminPostEditPage() {
   const { token } = useSupabaseSession();
   const [thumbnailImageKey, setThumbnailImageKey] = useState(''); // Supabaseに保存された画像のパス（key）を管理するstate
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null); // 画像の公開URLを管理するstate（初期値はnull）
-  const [submitting, setSubmitting] = useState(false)
   const {register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<PostFormData>();
   // ↑ useFormからフォーム操作に必要な関数・状態を取得
   // register: 入力値を登録する関数
@@ -118,7 +117,6 @@ export default function AdminPostEditPage() {
 
   const handleDelete = async () => {
     if (!confirm("削除してもよろしいですか？")) return; // 確認ダイアログでキャンセルなら処理を中断
-    setSubmitting(true); // 送信中フラグ
 
     try {
       const res = await fetch(`/api/admin/posts/${id}`, { 
@@ -137,8 +135,6 @@ export default function AdminPostEditPage() {
     } catch (e) {
       console.error(e);
       alert("エラーが発生しました");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -155,7 +151,7 @@ export default function AdminPostEditPage() {
         onSubmit={handleSubmit(onSubmit)} // 送信時にバリデーション→onSubmitを実行
         onDelete={handleDelete}
         categories={categories} // カテゴリー一覧を渡す
-        submitting={isSubmitting || submitting} // useFormの送信中 または 削除の送信中なら true
+        submitting={isSubmitting} // useFormの送信中なら true
         isEdit
         handleImageChange={handleImageChange} // 画像変更時の処理を渡す
         thumbnailImageUrl={thumbnailImageUrl} // サムネイル画像URLを渡す

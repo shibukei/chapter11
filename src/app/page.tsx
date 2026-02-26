@@ -24,7 +24,7 @@ export default function Posts() {
           id: String(p.id),
           title: p.title,
           content: p.content,
-          thumbnailUrl: p.thumbnailUrl,
+          thumbnailUrl: p.thumbnailImageKey,
           createdAt: p.createdAt,
           categories: p.postCategories?.map((pc) => pc.category.name) ?? [],
         }));
